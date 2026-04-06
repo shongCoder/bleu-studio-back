@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: dev   # ← 기본 실행 환경 (개발)
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
