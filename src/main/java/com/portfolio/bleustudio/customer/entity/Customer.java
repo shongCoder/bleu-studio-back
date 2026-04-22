@@ -35,6 +35,7 @@ public class Customer extends BaseEntity {
     @Column(name = "email", length = 100, unique = true)
     private String email;
 
-    @Column(name = "del_flag", nullable = false)
-    private Boolean delFlag = false;
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

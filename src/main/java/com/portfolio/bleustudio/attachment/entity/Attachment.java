@@ -38,7 +38,4 @@ public class Attachment extends BaseEntity {
 
     @Column(name = "extention", length = 100, nullable = false)
     private String extention;
-
-    @Column(name = "del_flag", nullable = false)
-    private Boolean delFlag = false;
 }

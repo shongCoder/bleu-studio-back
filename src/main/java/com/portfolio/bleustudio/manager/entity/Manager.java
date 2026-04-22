@@ -35,4 +35,16 @@ public class Manager extends BaseEntity {
 
     @Column(name = "use_state", nullable = false)
     private Boolean useState = true;
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void deactivate() {
+        this.useState = false;
+    }
+
+    public void activate() {
+        this.useState = true;
+    }
 }

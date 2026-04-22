@@ -73,4 +73,9 @@ public class Contact extends BaseEntity {
 
     @OneToMany(mappedBy = "contact")
     private List<ContactAnswer> answers;
+
+
+    public void changeGuestPassword(String encodedGuestPassword) {
+        this.guestPassword = encodedGuestPassword;
+    }
 }

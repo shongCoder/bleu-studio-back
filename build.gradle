@@ -26,6 +26,12 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Source: https://mvnrepository.com/artifact/com.h2database/h2
+    testImplementation("com.h2database:h2:2.1.214")
+
+    // Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto
+    implementation("org.springframework.security:spring-security-crypto")
 }
 
 tasks.named('test') {
