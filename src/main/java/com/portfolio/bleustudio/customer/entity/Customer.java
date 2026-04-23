@@ -4,8 +4,15 @@ import com.portfolio.bleustudio.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "customer")
+@Table(
+        name = "customer",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_customer_email", columnNames = "email")
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -17,8 +24,8 @@ public class Customer extends BaseEntity {
     @Column(name = "customer_no")
     private Long customerNo;
 
-    @Column(name = "login_id", length = 50, nullable = false, unique = true)
-    private String loginId;
+    @Column(name = "email", length = 100, nullable = false, unique = true)
+    private String email;
 
     @Column(name = "password", length = 255, nullable = false)
     private String password;
@@ -32,13 +39,30 @@ public class Customer extends BaseEntity {
     @Column(name = "phone", length = 20, nullable = false)
     private String phone;
 
-    @Column(name = "email", length = 100, unique = true)
-    private String email;
-
     @Column(name = "dormant", nullable = false)
+    @Builder.Default
     private boolean dormant = false;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
 
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateProfile(String customerName, String businessName, String phone, String email) {
+        this.customerName = customerName;
+        this.businessName = businessName;
+        this.phone = phone;
+        this.email = email;
+    }
+
+    public void markLoginSuccess(LocalDateTime loginAt) {
+        this.lastLoginAt = loginAt;
+        this.dormant = false;
+    }
+
+    public void changeDormant(boolean dormant) {
+        this.dormant = dormant;
     }
 }

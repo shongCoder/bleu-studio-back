@@ -5,8 +5,16 @@ import com.portfolio.bleustudio.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "manager")
+@Table(
+        name = "manager",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_manager_login_id", columnNames = "login_id"),
+                @UniqueConstraint(name = "uk_manager_email", columnNames = "email")
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -27,17 +35,31 @@ public class Manager extends BaseEntity {
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @Column(name = "phone", length = 20)
+    @Column(name = "phone", length = 20, nullable = false)
     private String phone;
 
-    @Column(name = "email", length = 100, unique = true)
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
     @Column(name = "use_state", nullable = false)
+    @Builder.Default
     private Boolean useState = true;
 
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateProfile(String name, String phone, String email) {
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+    }
+
+    public void markLoginSuccess(LocalDateTime loginAt) {
+        this.lastLoginAt = loginAt;
     }
 
     public void deactivate() {
