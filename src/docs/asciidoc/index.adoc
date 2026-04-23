@@ -1,0 +1,17 @@
+= BleuStudio API Docs
+:doctype: book
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 게시판
+
+=== 게시글 등록
+==== 요청
+include::{snippets}/create-board/http-request.adoc[]
+include::{snippets}/create-board/request-parts.adoc[]
+include::{snippets}/create-board/request-part-request-fields.adoc[]
+==== 응답
+include::{snippets}/create-board/http-response.adoc[]
+include::{snippets}/create-board/response-fields.adoc[]

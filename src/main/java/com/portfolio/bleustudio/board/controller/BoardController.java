@@ -2,10 +2,10 @@ package com.portfolio.bleustudio.board.controller;
 
 import com.portfolio.bleustudio.board.dto.BoardRequestDto;
 import com.portfolio.bleustudio.board.service.BoardService;
+import com.portfolio.bleustudio.common.dto.ResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,13 +19,20 @@ public class BoardController {
 
     private final BoardService boardService;
 
+    /**
+     * 게시글 등록
+     *
+     * @param requestDto 제목, 내용
+     * @param file       pdf, excel, jpg, png, hwp, word 등
+     * @return 게시글 번호
+     */
     @PostMapping("")
-    public ResponseEntity<Long> createBoard(@Valid @RequestPart BoardRequestDto requestDto
-            , @RequestPart(value = "board", required = false) List<MultipartFile> file
+    public ResponseDTO<Long> createBoard(@RequestPart("request") @Valid BoardRequestDto requestDto
+                                        , @RequestPart(value = "board", required = false) List<MultipartFile> file
     ){
 
         Long boardNo = boardService.createBoard(requestDto);
 
-        return ResponseEntity.ok(boardNo);
+        return ResponseDTO.success(boardNo, "게시판 등록 성공");
     }
 }

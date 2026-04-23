@@ -3,6 +3,8 @@ package com.portfolio.bleustudio.board.service;
 import com.portfolio.bleustudio.board.dto.BoardRequestDto;
 import com.portfolio.bleustudio.board.entity.Board;
 import com.portfolio.bleustudio.board.repository.BoardRepository;
+import com.portfolio.bleustudio.common.exception.ErrorEnum;
+import com.portfolio.bleustudio.common.exception.RestApiException;
 import com.portfolio.bleustudio.manager.entity.Manager;
 import com.portfolio.bleustudio.manager.repository.ManagerRepository;
 import jakarta.validation.Valid;
@@ -25,7 +27,7 @@ public class BoardService {
     public Long createBoard(@Valid BoardRequestDto requestDto) {
 
         Manager manager = managerRepository.findById(1L)
-                .orElseThrow(() -> new IllegalStateException("매니저 없음"));
+                .orElseThrow(() -> new RestApiException(ErrorEnum.MANAGER_NOT_FOUND));
 
         Board board = Board.builder()
                 .manager(manager)
