@@ -40,6 +40,13 @@ public class JWTFilter extends OncePerRequestFilter {
         // 3. 검증
         if (jwtProvider.validateToken(token)) {
 
+            TokenType tokenType = jwtProvider.getTokenType(token);
+
+            if (tokenType != TokenType.ACCESS) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             Long userId = jwtProvider.getUserId(token);
             String role = jwtProvider.getRole(token);
 

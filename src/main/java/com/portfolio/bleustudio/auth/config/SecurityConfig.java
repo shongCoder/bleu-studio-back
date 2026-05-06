@@ -38,7 +38,7 @@ public class SecurityConfig {
                         )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",   // 로그인/회원가입
+                                "/api/auth/**",
                                 "/swagger/**",
                                 "/v3/api-docs/**"
                         ).permitAll()

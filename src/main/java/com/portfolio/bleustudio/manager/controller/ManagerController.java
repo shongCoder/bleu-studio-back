@@ -1,8 +1,5 @@
 package com.portfolio.bleustudio.manager.controller;
 
-import com.portfolio.bleustudio.auth.annotation.AccessLevel;
-import com.portfolio.bleustudio.auth.enums.AccessLevelEnum;
-import com.portfolio.bleustudio.auth.enums.AuthLevel;
 import com.portfolio.bleustudio.common.dto.ResponseDTO;
 import com.portfolio.bleustudio.manager.dto.ManagerSignUpRequestDTO;
 import com.portfolio.bleustudio.manager.service.ManagerService;
@@ -23,6 +20,11 @@ public class ManagerController {
 
     private final ManagerService managerService;
 
+    /**
+     * 관리자 생성
+     * @param requestDTO
+     * @return
+     */
     @PreAuthorize("hasRole('SYSTEM')")
     @PostMapping("")
     public ResponseDTO<Long> createManager(@Valid @RequestBody ManagerSignUpRequestDTO requestDTO) {

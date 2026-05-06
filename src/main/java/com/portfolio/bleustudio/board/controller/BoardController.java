@@ -1,8 +1,5 @@
 package com.portfolio.bleustudio.board.controller;
 
-import com.portfolio.bleustudio.auth.annotation.AccessLevel;
-import com.portfolio.bleustudio.auth.enums.AccessLevelEnum;
-import com.portfolio.bleustudio.auth.enums.AuthLevel;
 import com.portfolio.bleustudio.board.dto.BoardRequestDto;
 import com.portfolio.bleustudio.board.service.BoardService;
 import com.portfolio.bleustudio.common.dto.ResponseDTO;

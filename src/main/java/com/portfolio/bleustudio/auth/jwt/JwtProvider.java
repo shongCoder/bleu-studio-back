@@ -32,11 +32,11 @@ public class JwtProvider {
     }
 
     public String createAccessToken(Long userId, String role) {
-        return createToken(userId, role, accessTokenExpiration);
+        return createToken(userId, role, accessTokenExpiration, TokenType.ACCESS);
     }
 
     public String createRefreshToken(Long userId, String role) {
-        return createToken(userId, role, refreshTokenExpiration);
+        return createToken(userId, role, refreshTokenExpiration, TokenType.REFRESH);
     }
 
     public Long getUserId(String token) {
@@ -71,13 +71,14 @@ public class JwtProvider {
         }
     }
 
-    private String createToken(Long userId, String role, long expiration) {
+    private String createToken(Long userId, String role, long expiration, TokenType tokenType) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .claim("userId", userId)
                 .claim("role", role)
+                .claim("tokenType", tokenType)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(signingKey, SignatureAlgorithm.HS256)
@@ -89,5 +90,10 @@ public class JwtProvider {
                 .setSigningKey(signingKey)
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public TokenType getTokenType(String token) {
+        String tokenType = parseClaims(token).get("tokenType", String.class);
+        return TokenType.valueOf(tokenType);
     }
 }

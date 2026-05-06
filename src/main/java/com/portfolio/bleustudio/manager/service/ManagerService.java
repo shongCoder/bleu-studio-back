@@ -9,6 +9,7 @@ import com.portfolio.bleustudio.manager.vo.ManagerEmailVO;
 import com.portfolio.bleustudio.manager.vo.ManagerLoginIdVO;
 import com.portfolio.bleustudio.manager.vo.ManagerPasswordVO;
 import com.portfolio.bleustudio.manager.vo.ManagerPhoneVO;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,18 @@ public class ManagerService {
 
     private final ManagerRepository managerRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Transactional(readOnly = true)
+    public Manager getManagerById(String id) {
+        return managerRepository.findByLoginId(id).orElseThrow(
+                () -> new RestApiException(ErrorEnum.MANAGER_NOT_FOUND)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Manager> getOptionalManagerById(String id) {
+        return managerRepository.findByLoginId(id);
+    }
 
     @Transactional
     public Long createManager(ManagerSignUpRequestDTO requestDTO) {
