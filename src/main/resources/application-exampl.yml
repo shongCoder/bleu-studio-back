@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: example
+
+  datasource:
+    url: ${DB_URL:}
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+master:
+  password: ${MASTER_PASSWORD:}
