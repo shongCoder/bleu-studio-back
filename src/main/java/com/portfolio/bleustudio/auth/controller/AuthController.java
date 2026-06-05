@@ -20,6 +20,11 @@ public class AuthController {
 
     private final AuthFacade authFacade;
 
+    /**
+     * 매니저 로그인
+     * @param requestDTO
+     * @return
+     */
     @PostMapping("/manager/login")
     public ResponseDTO<?> loginManager(@Valid @RequestBody ManagerLoginRequestDTO requestDTO) {
 
