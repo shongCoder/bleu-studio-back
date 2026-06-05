@@ -3,9 +3,12 @@ spring:
     activate:
       on-profile: example
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
   datasource:
     url: ${DB_URL:}
-    driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME:}
     password: ${DB_PASSWORD:}
 

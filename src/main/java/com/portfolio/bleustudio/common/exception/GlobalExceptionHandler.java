@@ -2,6 +2,7 @@ package com.portfolio.bleustudio.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,5 +45,15 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(ErrorEnum.INTERNAL_SERVER_ERROR.getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        ErrorResponse response = ErrorResponse.builder()
+                .code(ErrorEnum.ACCESS_DENIED.getCode())
+                .message(ErrorEnum.ACCESS_DENIED.getMessage())
+                .build();
+
+        return ResponseEntity.status(ErrorEnum.ACCESS_DENIED.getHttpStatus()).body(response);
     }
 }

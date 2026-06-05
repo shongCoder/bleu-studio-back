@@ -1,5 +1,6 @@
 package com.portfolio.bleustudio.auth.jwt;
 
+import com.portfolio.bleustudio.auth.security.AuthenticatedManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,11 +50,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
             Long userId = jwtProvider.getUserId(token);
             String role = jwtProvider.getRole(token);
+            String loginId = jwtProvider.getLoginId(token);
 
             // 4. 인증 객체 생성
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userId,
+                            new AuthenticatedManager(userId, loginId, role),
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );

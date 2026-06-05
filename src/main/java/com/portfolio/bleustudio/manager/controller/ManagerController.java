@@ -25,7 +25,7 @@ public class ManagerController {
      * @param requestDTO
      * @return
      */
-    @PreAuthorize("hasRole('SYSTEM')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseDTO<Long> createManager(@Valid @RequestBody ManagerSignUpRequestDTO requestDTO) {
 

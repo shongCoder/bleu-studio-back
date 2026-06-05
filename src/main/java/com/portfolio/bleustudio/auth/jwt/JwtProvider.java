@@ -32,11 +32,19 @@ public class JwtProvider {
     }
 
     public String createAccessToken(Long userId, String role) {
-        return createToken(userId, role, accessTokenExpiration, TokenType.ACCESS);
+        return createToken(userId, role, null, accessTokenExpiration, TokenType.ACCESS);
+    }
+
+    public String createAccessToken(Long userId, String role, String loginId) {
+        return createToken(userId, role, loginId, accessTokenExpiration, TokenType.ACCESS);
     }
 
     public String createRefreshToken(Long userId, String role) {
-        return createToken(userId, role, refreshTokenExpiration, TokenType.REFRESH);
+        return createToken(userId, role, null, refreshTokenExpiration, TokenType.REFRESH);
+    }
+
+    public String createRefreshToken(Long userId, String role, String loginId) {
+        return createToken(userId, role, loginId, refreshTokenExpiration, TokenType.REFRESH);
     }
 
     public Long getUserId(String token) {
@@ -45,6 +53,10 @@ public class JwtProvider {
 
     public String getRole(String token) {
         return parseClaims(token).get("role", String.class);
+    }
+
+    public String getLoginId(String token) {
+        return parseClaims(token).get("loginId", String.class);
     }
 
     public Date getExpiration(String token) {
@@ -71,13 +83,14 @@ public class JwtProvider {
         }
     }
 
-    private String createToken(Long userId, String role, long expiration, TokenType tokenType) {
+    private String createToken(Long userId, String role, String loginId, long expiration, TokenType tokenType) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .claim("userId", userId)
                 .claim("role", role)
+                .claim("loginId", loginId)
                 .claim("tokenType", tokenType)
                 .setIssuedAt(now)
                 .setExpiration(expiry)

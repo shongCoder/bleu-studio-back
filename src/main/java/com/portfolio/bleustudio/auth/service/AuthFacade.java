@@ -55,8 +55,8 @@ public class AuthFacade {
 
         /* 토큰 생성 */
         String managerRoleName = managerRoleService.getManagerRoleName(manager);
-        String accessToken = jwtProvider.createAccessToken(manager.getManagerNo(), managerRoleName);
-        String refreshToken = jwtProvider.createRefreshToken(manager.getManagerNo(), managerRoleName);
+        String accessToken = jwtProvider.createAccessToken(manager.getManagerNo(), managerRoleName, manager.getLoginId());
+        String refreshToken = jwtProvider.createRefreshToken(manager.getManagerNo(), managerRoleName, manager.getLoginId());
 
         LocalDateTime accessExpireAt = jwtProvider.getAccessTokenExpiryDate()
                 .toInstant()
