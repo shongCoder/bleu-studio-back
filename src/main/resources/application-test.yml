@@ -16,3 +16,6 @@ spring:
   h2:
     console:
       enabled: true
+
+master:
+  password: test-master-password

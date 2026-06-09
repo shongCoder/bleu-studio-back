@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -59,6 +61,7 @@ class BoardControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "MANAGER")
     @DisplayName("게시글 등록 성공")
     void createBoard() throws Exception {
         BoardRequestDto request = new BoardRequestDto();
@@ -68,7 +71,12 @@ class BoardControllerTest {
         String json = objectMapper.writeValueAsString(request);
 
         MockMultipartFile image = new MockMultipartFile("board", "image.png", "image/png", new byte[]{(byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47, (byte) 0x0D, (byte) 0x0A, (byte) 0x1A, (byte) 0x0A});
-        MockMultipartFile metadata = new MockMultipartFile("request", "", "application/json", json.getBytes());
+        MockMultipartFile metadata = new MockMultipartFile(
+                "request",
+                "request.json",
+                APPLICATION_JSON_VALUE,
+                json.getBytes(StandardCharsets.UTF_8)
+        );
 
         when(boardService.createBoard(any())).thenReturn(1L);
 

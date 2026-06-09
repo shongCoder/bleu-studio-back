@@ -36,7 +36,7 @@ public class ManagerRefreshToken extends BaseEntity {
 
     @Column(name = "revoked", nullable = false)
     @Builder.Default
-    private boolean revoked = false;
+    private Boolean revoked = false;
 
     @Column(name = "revoked_at")
     private LocalDateTime revokedAt;

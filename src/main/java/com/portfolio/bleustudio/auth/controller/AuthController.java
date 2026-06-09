@@ -2,6 +2,7 @@ package com.portfolio.bleustudio.auth.controller;
 
 import com.portfolio.bleustudio.auth.dto.ManagerLoginRequestDTO;
 import com.portfolio.bleustudio.auth.dto.ManagerLoginResponseDTO;
+import com.portfolio.bleustudio.auth.dto.ManagerLogoutRequestDTO;
 import com.portfolio.bleustudio.auth.service.AuthFacade;
 import com.portfolio.bleustudio.common.dto.ResponseDTO;
 import jakarta.validation.Valid;
@@ -31,5 +32,18 @@ public class AuthController {
         ManagerLoginResponseDTO response = authFacade.loginManager(requestDTO);
 
         return ResponseDTO.success(response, "로그인 성공");
+    }
+
+    /**
+     * 매니저 로그아웃
+     * @param requestDTO
+     * @return
+     */
+    @PostMapping("/manager/logout")
+    public ResponseDTO<?> logoutManager(@Valid @RequestBody ManagerLogoutRequestDTO requestDTO) {
+
+        authFacade.logoutManager(requestDTO);
+
+        return ResponseDTO.success(null, "로그아웃 성공");
     }
 }

@@ -2,6 +2,7 @@ package com.portfolio.bleustudio.auth.service;
 
 import com.portfolio.bleustudio.auth.dto.ManagerLoginRequestDTO;
 import com.portfolio.bleustudio.auth.dto.ManagerLoginResponseDTO;
+import com.portfolio.bleustudio.auth.dto.ManagerLogoutRequestDTO;
 import com.portfolio.bleustudio.auth.jwt.JwtProvider;
 import com.portfolio.bleustudio.common.exception.ErrorEnum;
 import com.portfolio.bleustudio.common.exception.RestApiException;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ public class AuthFacade {
     @Value("${master.password}")
     private String MASTER_PASSWORD;
 
+    /** 매니저 로그인 */
     @Transactional
     public ManagerLoginResponseDTO loginManager(@Valid ManagerLoginRequestDTO requestDTO) {
 
@@ -86,6 +89,25 @@ public class AuthFacade {
                 .accessToken(new ManagerLoginResponseDTO.Token(accessToken, accessExpireAt))
                 .refreshToken(new ManagerLoginResponseDTO.Token(refreshToken, refreshExpireAt))
                 .build();
+    }
+
+    /** 매니저 로그아웃 */
+    @Transactional
+    public void logoutManager(@Valid ManagerLogoutRequestDTO requestDTO) {
+        /* 검증부 */
+        ManagerRefreshToken findRefreshToken =
+                managerRefreshTokenRepository.getManagerRefreshTokenByRefreshToken(requestDTO.getRefreshToken())
+                        .orElseThrow(() -> new RestApiException(ErrorEnum.INVALID_TOKEN));
+
+        String ManagerName = findRefreshToken.getManager().getName();
+
+        if (findRefreshToken.getRevoked()) {
+            return;
+        }
+
+        // 토큰 만료
+        findRefreshToken.revoke(LocalDateTime.now());
+
     }
 
     /** 비밀번호 체크 */
