@@ -2,21 +2,20 @@ package com.portfolio.bleustudio.auth.service;
 
 import com.portfolio.bleustudio.auth.dto.ManagerLoginRequestDTO;
 import com.portfolio.bleustudio.auth.dto.ManagerLoginResponseDTO;
-import com.portfolio.bleustudio.auth.dto.ManagerLogoutRequestDTO;
+import com.portfolio.bleustudio.auth.dto.ManagerTokenRequestDTO;
+import com.portfolio.bleustudio.auth.dto.ManagerTokenResponseDTO;
 import com.portfolio.bleustudio.auth.jwt.JwtProvider;
+import com.portfolio.bleustudio.auth.jwt.TokenType;
 import com.portfolio.bleustudio.common.exception.ErrorEnum;
 import com.portfolio.bleustudio.common.exception.RestApiException;
 import com.portfolio.bleustudio.manager.entity.Manager;
 import com.portfolio.bleustudio.manager.entity.ManagerRefreshToken;
-import com.portfolio.bleustudio.manager.repository.ManagerRefreshTokenRepository;
+import com.portfolio.bleustudio.manager.service.ManagerRefreshTokenService;
 import com.portfolio.bleustudio.manager.service.ManagerService;
-import com.portfolio.bleustudio.role.repository.ManagerRoleRepository;
 import com.portfolio.bleustudio.role.service.ManagerRoleService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cglib.core.Local;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,16 +31,15 @@ public class AuthFacade {
     private final ManagerService managerService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final ManagerRoleRepository managerRoleRepository;
     private final ManagerRoleService managerRoleService;
-    private final ManagerRefreshTokenRepository managerRefreshTokenRepository;
+    private final ManagerRefreshTokenService managerRefreshTokenService;
 
     @Value("${master.password}")
     private String MASTER_PASSWORD;
 
     /** 매니저 로그인 */
     @Transactional
-    public ManagerLoginResponseDTO loginManager(@Valid ManagerLoginRequestDTO requestDTO) {
+    public ManagerLoginResponseDTO loginManager(ManagerLoginRequestDTO requestDTO) {
 
         /* 검증부 */
         Manager manager = managerService.getOptionalManagerById(requestDTO.getId()).orElseThrow(
@@ -72,15 +70,7 @@ public class AuthFacade {
                 .toLocalDateTime();
 
         // refreshToken 저장
-        managerRefreshTokenRepository.save(
-                ManagerRefreshToken.builder()
-                        .manager(manager)
-                        .refreshToken(refreshToken)
-                        .expiresAt(refreshExpireAt)
-                        .revoked(false)
-                        .revokedAt(null)
-                        .build()
-        );
+        managerRefreshTokenService.createManagerRefreshToken(manager, refreshToken, refreshExpireAt);
 
         return ManagerLoginResponseDTO.builder()
                 .managerNo(manager.getManagerNo())
@@ -93,13 +83,11 @@ public class AuthFacade {
 
     /** 매니저 로그아웃 */
     @Transactional
-    public void logoutManager(@Valid ManagerLogoutRequestDTO requestDTO) {
+    public void logoutManager(ManagerTokenRequestDTO requestDTO) {
         /* 검증부 */
         ManagerRefreshToken findRefreshToken =
-                managerRefreshTokenRepository.getManagerRefreshTokenByRefreshToken(requestDTO.getRefreshToken())
+                managerRefreshTokenService.getOptionalManagerRefreshToken(requestDTO.getRefreshToken())
                         .orElseThrow(() -> new RestApiException(ErrorEnum.INVALID_TOKEN));
-
-        String ManagerName = findRefreshToken.getManager().getName();
 
         if (findRefreshToken.getRevoked()) {
             return;
@@ -107,7 +95,62 @@ public class AuthFacade {
 
         // 토큰 만료
         findRefreshToken.revoke(LocalDateTime.now());
+    }
 
+    /** 매니저 엑세스토큰 갱신 */
+    @Transactional
+    public ManagerTokenResponseDTO reissueAccessToken(ManagerTokenRequestDTO requestDTO) {
+
+        String refreshToken = requestDTO.getRefreshToken();
+
+        /* 검증부 */
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new RestApiException(ErrorEnum.INVALID_TOKEN);
+        }
+        if (jwtProvider.getTokenType(refreshToken) != TokenType.REFRESH) {
+            throw new RestApiException(ErrorEnum.INVALID_TOKEN);
+        }
+        ManagerRefreshToken findRefreshToken =
+                managerRefreshTokenService.getOptionalManagerRefreshToken(refreshToken).orElseThrow(
+                        () -> new RestApiException(ErrorEnum.INVALID_TOKEN)
+                );
+        if (findRefreshToken.getRevoked()) {
+            throw new RestApiException(ErrorEnum.INVALID_TOKEN);
+        }
+        if (findRefreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            findRefreshToken.revoke(LocalDateTime.now());
+            throw new RestApiException(ErrorEnum.TOKEN_EXPIRED);
+        }
+
+        // 요청한 토큰의 매니저와 DB 로우 매니저 일치 여부
+        Long managerNo = jwtProvider.getUserId(refreshToken);
+        if (!findRefreshToken.getManager().getManagerNo().equals(managerNo)) {
+            throw new RestApiException(ErrorEnum.INVALID_TOKEN);
+        }
+
+        // 사용중지된 매니저 예외
+        Manager manager = findRefreshToken.getManager();
+        if (!manager.getUseState()) {
+            findRefreshToken.revoke(LocalDateTime.now());
+            throw new RestApiException(ErrorEnum.MANAGER_DISABLED);
+        }
+
+        // 신규 엑세스토큰 발급
+        String roleName = managerRoleService.getManagerRoleName(manager);
+        String newAccessToken =
+                jwtProvider.createAccessToken(
+                        manager.getManagerNo(),
+                        roleName,
+                        manager.getLoginId()
+                );
+        LocalDateTime accessExpireAt = jwtProvider.getAccessTokenExpiryDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        return ManagerTokenResponseDTO.builder()
+                .accessToken(new ManagerTokenResponseDTO.Token(newAccessToken, accessExpireAt))
+                .build();
     }
 
     /** 비밀번호 체크 */

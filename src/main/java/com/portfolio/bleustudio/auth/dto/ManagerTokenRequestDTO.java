@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 @Builder
-public class ManagerLogoutRequestDTO {
+public class ManagerTokenRequestDTO {
 
     @NotBlank(message = "refresh token은 필수입니다.")
     private String refreshToken;
